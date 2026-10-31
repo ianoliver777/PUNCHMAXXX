@@ -23,7 +23,14 @@ juce::File PresetManager::defaultUserFolder()
    #if JUCE_MAC
     base = base.getChildFile ("Application Support");
    #endif
-    return base.getChildFile ("barnacle boi").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
+    auto folder = base.getChildFile ("TRIPLE 7 AUDIO").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
+
+    // one-time move of presets saved by the first build (before the TRIPLE 7 AUDIO rebrand)
+    auto legacy = base.getChildFile ("barnacle boi").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
+    if (legacy.isDirectory() && ! folder.isDirectory() && folder.createDirectory())
+        for (auto& f : legacy.findChildFiles (juce::File::findFiles, false, juce::String ("*") + fileExtension))
+            f.copyFileTo (folder.getChildFile (f.getFileName()));
+    return folder;
 }
 
 void PresetManager::rescan()

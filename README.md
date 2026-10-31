@@ -1,6 +1,6 @@
 # PUNCHMAXXX — Transient Drum Processor
 
-by barnacle boi · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
+by TRIPLE 7 AUDIO · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
 
 ## What the controls do
 
@@ -28,8 +28,8 @@ Knobs: drag up/down, **shift-drag** for fine, **double-click** to reset, scroll 
 - **☰ menu**: save as new, overwrite, delete, load a `.pmxx` file, open the presets folder, window size.
 - 1st folder button = load a preset file from anywhere · 2nd folder button = open your presets folder.
 - User presets live in:
-  - macOS: `~/Library/Application Support/barnacle boi/PUNCHMAXXX/Presets`
-  - Windows: `%APPDATA%\barnacle boi\PUNCHMAXXX\Presets`
+  - macOS: `~/Library/Application Support/TRIPLE 7 AUDIO/PUNCHMAXXX/Presets`
+  - Windows: `%APPDATA%\TRIPLE 7 AUDIO\PUNCHMAXXX\Presets`
 
 ## Project recall
 Everything (all knobs, mode, shape, which preset is loaded, whether you tweaked it, window size) is saved inside the DAW project and comes back exactly when the project reopens.

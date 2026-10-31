@@ -22,10 +22,9 @@ endif()
 
 # --- Plugin ----------------------------------------------------------------
 juce_add_plugin(PUNCHMAXXX
-    COMPANY_NAME "barnacle boi"
-    COMPANY_WEBSITE "https://barnacleboi.com"
-    BUNDLE_ID com.barnacleboi.punchmaxxx
-    PLUGIN_MANUFACTURER_CODE Bbnc
+    COMPANY_NAME "TRIPLE 7 AUDIO"
+    BUNDLE_ID com.triple7audio.punchmaxxx
+    PLUGIN_MANUFACTURER_CODE T7au
     PLUGIN_CODE Pmxx
     PRODUCT_NAME "PUNCHMAXXX"
     DESCRIPTION "Transient Drum Processor"
