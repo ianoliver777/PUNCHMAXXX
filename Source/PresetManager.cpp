@@ -1,224 +1,186 @@
 #include "PresetManager.h"
+#include "FactoryPresets.h"
+#include "Params.h"
 
-namespace pmx
+PresetManager::PresetManager (juce::AudioProcessorValueTreeState& s) : apvts (s)
 {
-PresetManager::PresetManager (juce::AudioProcessorValueTreeState& state) : apvts (state)
-{
-    currentName = initName();
-    for (auto& id : allParamIDs())
+    for (auto* id : pmx::ids::all)
         apvts.addParameterListener (id, this);
-    userFolder = defaultUserFolder();
-    rescan();
+    refreshUserPresets();
 }
 
 PresetManager::~PresetManager()
 {
-    for (auto& id : allParamIDs())
+    for (auto* id : pmx::ids::all)
         apvts.removeParameterListener (id, this);
 }
 
-juce::File PresetManager::defaultUserFolder()
+juce::File PresetManager::getUserPresetFolder()
 {
-    auto base = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory);
-   #if JUCE_MAC
-    base = base.getChildFile ("Application Support");
-   #endif
-    return base.getChildFile ("barnacle boi").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
+    auto dir = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+               #if JUCE_MAC
+                .getChildFile ("Application Support")
+               #endif
+                .getChildFile ("TRIPLE 7 AUDIO").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
+    if (! dir.exists()) dir.createDirectory();
+    return dir;
 }
 
-void PresetManager::rescan()
+void PresetManager::refreshUserPresets()
 {
-    entries.clear();
-    entries.push_back ({ Entry::Kind::Init, initName() });
-
-    const auto& fp = factoryPresets();
-    for (int i = 0; i < (int) fp.size(); ++i)
-        entries.push_back ({ Entry::Kind::Factory, fp[(size_t) i].name, i });
-
-    if (userFolder.isDirectory())
-    {
-        auto files = userFolder.findChildFiles (juce::File::findFiles, false, juce::String ("*") + fileExtension);
-        std::sort (files.begin(), files.end(), [] (const juce::File& a, const juce::File& b)
-                   { return a.getFileNameWithoutExtension().compareNatural (b.getFileNameWithoutExtension()) < 0; });
-        for (auto& f : files)
-            entries.push_back ({ Entry::Kind::User, f.getFileNameWithoutExtension(), -1, f });
-    }
-    ++changeCounter;
+    userFiles = getUserPresetFolder().findChildFiles (juce::File::findFiles, false, juce::String ("*") + extension);
+    std::sort (userFiles.begin(), userFiles.end(), [] (const juce::File& a, const juce::File& b)
+               { return a.getFileNameWithoutExtension().compareIgnoreCase (b.getFileNameWithoutExtension()) < 0; });
 }
 
-int PresetManager::getCurrentIndex() const
+int PresetManager::getNumFactory() const { return pmx::numFactoryPresets; }
+int PresetManager::getNumTotal() const   { return getNumFactory() + userFiles.size(); }
+
+juce::String PresetManager::getNameAt (int index) const
 {
-    for (int i = 0; i < (int) entries.size(); ++i)
-        if (entries[(size_t) i].kind == currentKind && entries[(size_t) i].name == currentName)
-            return i;
+    if (index < 0) return {};
+    if (index < getNumFactory()) return pmx::factoryPresets[index].name;
+    index -= getNumFactory();
+    return juce::isPositiveAndBelow (index, userFiles.size()) ? userFiles[index].getFileNameWithoutExtension() : juce::String();
+}
+
+int PresetManager::findIndexForName (const juce::String& name) const
+{
+    for (int i = getNumTotal(); --i >= 0;)        // user presets win over factory ones with same name
+        if (getNameAt (i) == name) return i;
     return -1;
 }
 
-void PresetManager::setCurrent (Entry::Kind kind, const juce::String& name)
+void PresetManager::applyValues (const std::function<float (const juce::String&, float)>& getValue)
 {
-    currentKind = kind;
-    currentName = name;
-    modified = false;
-    ++changeCounter;
-}
-
-void PresetManager::applyValues (const std::map<juce::String, float>& values)
-{
-    ScopedLoad sl (*this);
-    for (auto& id : allParamIDs())
-    {
+    loading = true;
+    for (auto* id : pmx::ids::all)
         if (auto* p = dynamic_cast<juce::RangedAudioParameter*> (apvts.getParameter (id)))
         {
-            auto it = values.find (id);
-            const float norm = it != values.end() ? p->convertTo0to1 (it->second) : p->getDefaultValue();
+            const float current = p->convertFrom0to1 (p->getValue());
+            const float v = getValue (id, current);
             p->beginChangeGesture();
-            p->setValueNotifyingHost (norm);
+            p->setValueNotifyingHost (p->convertTo0to1 (v));
             p->endChangeGesture();
         }
-    }
+    loading = false;
+    dirty = false;
 }
 
-void PresetManager::loadInit()
+void PresetManager::loadIndex (int index)
 {
-    applyValues ({});
-    setCurrent (Entry::Kind::Init, initName());
-}
+    if (! juce::isPositiveAndBelow (index, getNumTotal())) return;
 
-void PresetManager::loadEntry (int index)
-{
-    if (! juce::isPositiveAndBelow (index, (int) entries.size()))
-        return;
-
-    const auto e = entries[(size_t) index];
-    switch (e.kind)
+    if (index < getNumFactory())
     {
-        case Entry::Kind::Init:
-            loadInit();
-            break;
-
-        case Entry::Kind::Factory:
-            applyValues (toValueMap (factoryPresets()[(size_t) e.factoryIndex]));
-            setCurrent (Entry::Kind::Factory, e.name);
-            break;
-
-        case Entry::Kind::User:
+        const auto& f = pmx::factoryPresets[index];
+        applyValues ([&f] (const juce::String& id, float) -> float
         {
-            auto xml = juce::XmlDocument::parse (e.file);
-            if (xml == nullptr)
-                return;
-            std::map<juce::String, float> values;
-            for (auto* child : xml->getChildWithTagNameIterator ("PARAM"))
-                values[child->getStringAttribute ("id")] = (float) child->getDoubleAttribute ("value");
-            applyValues (values);
-            setCurrent (Entry::Kind::User, e.name);
-            break;
-        }
+            using namespace pmx::ids;
+            if (id == compOn)       return f.compOn ? 1.0f : 0.0f;
+            if (id == thresh)       return f.thresh;
+            if (id == ratio)        return f.ratio;
+            if (id == compAttack)   return f.attack;
+            if (id == compRelease)  return f.release;
+            if (id == transOn)      return f.transOn ? 1.0f : 0.0f;
+            if (id == transAttack)  return f.tAttack;
+            if (id == transSustain) return f.tSustain;
+            if (id == maxOn)        return f.maxOn ? 1.0f : 0.0f;
+            if (id == ceiling)      return f.ceiling;
+            if (id == drive)        return f.drive;
+            if (id == mix)          return f.mix;
+            if (id == oversample)   return (float) f.oversample;
+            if (id == output)       return f.output;
+            return 0.0f;
+        });
+        currentName = f.name;
+        currentIndex = index;
+    }
+    else
+    {
+        loadFromFile (userFiles[index - getNumFactory()]);
     }
 }
 
-void PresetManager::step (int delta)
-{
-    const int count = (int) entries.size();
-    if (count == 0) return;
-    int idx = getCurrentIndex();
-    if (idx < 0) idx = 0;
-    loadEntry ((idx + delta + count) % count);
-}
+void PresetManager::loadNext()     { loadIndex ((currentIndex + 1) % getNumTotal()); }
+void PresetManager::loadPrevious() { loadIndex ((currentIndex - 1 + getNumTotal()) % getNumTotal()); }
 
-juce::String PresetManager::sanitise (const juce::String& name)
+bool PresetManager::loadFromFile (const juce::File& file)
 {
-    return juce::File::createLegalFileName (name.trim()).substring (0, 64).trim();
-}
+    auto xml = juce::XmlDocument::parse (file);
+    if (xml == nullptr || ! xml->hasTagName ("PUNCHMAXXX_PRESET")) return false;
 
-bool PresetManager::userPresetExists (const juce::String& name) const
-{
-    return userFolder.getChildFile (sanitise (name) + fileExtension).existsAsFile();
+    applyValues ([&xml] (const juce::String& id, float current) -> float
+    {
+        if (auto* e = xml->getChildByAttribute ("id", id))
+            return (float) e->getDoubleAttribute ("value", current);
+        return current;
+    });
+
+    // if the file lives outside the preset folder, copy it in so it shows up in the list
+    auto folder = getUserPresetFolder();
+    if (! file.isAChildOf (folder))
+        file.copyFileTo (folder.getChildFile (file.getFileName()));
+
+    refreshUserPresets();
+    currentName = xml->getStringAttribute ("name", file.getFileNameWithoutExtension());
+    const int idx = findIndexForName (file.getFileNameWithoutExtension());
+    currentIndex = idx >= 0 ? idx : currentIndex;
+    return true;
 }
 
 bool PresetManager::saveUserPreset (const juce::String& rawName)
 {
-    const auto name = sanitise (rawName);
-    if (name.isEmpty())
-        return false;
-
-    if (! userFolder.createDirectory())
-        return false;
+    auto name = juce::File::createLegalFileName (rawName.trim());
+    if (name.isEmpty()) return false;
 
     juce::XmlElement xml ("PUNCHMAXXX_PRESET");
     xml.setAttribute ("name", name);
+    xml.setAttribute ("author", "TRIPLE 7 AUDIO");
     xml.setAttribute ("version", 1);
-    for (auto& id : allParamIDs())
-    {
-        auto* child = xml.createNewChildElement ("PARAM");
-        child->setAttribute ("id", id);
-        child->setAttribute ("value", (double) apvts.getRawParameterValue (id)->load());
-    }
-
-    const auto file = userFolder.getChildFile (name + fileExtension);
-    if (! xml.writeTo (file))
-        return false;
-
-    rescan();
-    setCurrent (Entry::Kind::User, name);
-    return true;
-}
-
-bool PresetManager::deleteCurrentUserPreset()
-{
-    if (currentKind != Entry::Kind::User)
-        return false;
-    const auto file = userFolder.getChildFile (currentName + fileExtension);
-    if (! file.deleteFile())
-        return false;
-    rescan();
-    // keep the sound, just mark it as no longer tied to a saved preset
-    currentKind = Entry::Kind::Init;
-    currentName = initName();
-    modified = true;
-    ++changeCounter;
-    return true;
-}
-
-bool PresetManager::importAndLoad (const juce::File& file)
-{
-    auto xml = juce::XmlDocument::parse (file);
-    if (xml == nullptr || ! xml->hasTagName ("PUNCHMAXXX_PRESET"))
-        return false;
-
-    userFolder.createDirectory();
-    const auto name = sanitise (xml->getStringAttribute ("name", file.getFileNameWithoutExtension()));
-    const auto dest = userFolder.getChildFile (name + fileExtension);
-    if (dest != file && ! file.copyFileTo (dest))
-        return false;
-
-    rescan();
-    for (int i = 0; i < (int) entries.size(); ++i)
-        if (entries[(size_t) i].kind == Entry::Kind::User && entries[(size_t) i].name == name)
+    for (auto* id : pmx::ids::all)
+        if (auto* p = dynamic_cast<juce::RangedAudioParameter*> (apvts.getParameter (id)))
         {
-            loadEntry (i);
-            return true;
+            auto* e = xml.createNewChildElement ("PARAM");
+            e->setAttribute ("id", id);
+            e->setAttribute ("value", (double) p->convertFrom0to1 (p->getValue()));
         }
-    return false;
+
+    auto file = getUserPresetFolder().getChildFile (name + extension);
+    if (! xml.writeTo (file)) return false;
+
+    refreshUserPresets();
+    currentName = name;
+    currentIndex = findIndexForName (name);
+    dirty = false;
+    return true;
+}
+
+bool PresetManager::deleteUserPreset (int index)
+{
+    if (index < getNumFactory() || index >= getNumTotal()) return false;
+    const bool ok = userFiles[index - getNumFactory()].deleteFile();
+    refreshUserPresets();
+    if (ok && index == currentIndex) { currentIndex = 0; currentName = "INIT"; dirty = true; }
+    return ok;
 }
 
 void PresetManager::writeToState (juce::ValueTree& state) const
 {
     state.setProperty ("presetName", currentName, nullptr);
-    state.setProperty ("presetKind", (int) currentKind, nullptr);
-    state.setProperty ("presetModified", modified.load(), nullptr);
+    state.setProperty ("presetDirty", dirty.load(), nullptr);
 }
 
 void PresetManager::readFromState (const juce::ValueTree& state)
 {
-    currentName = state.getProperty ("presetName", initName()).toString();
-    currentKind = (Entry::Kind) juce::jlimit (0, 2, (int) state.getProperty ("presetKind", 0));
-    modified = (bool) state.getProperty ("presetModified", false);
-    ++changeCounter;
+    refreshUserPresets();
+    currentName = state.getProperty ("presetName", "INIT").toString();
+    const int idx = findIndexForName (currentName);
+    currentIndex = idx >= 0 ? idx : 0;
+    dirty = (bool) state.getProperty ("presetDirty", false);
 }
 
 void PresetManager::parameterChanged (const juce::String&, float)
 {
-    if (loadingDepth.load() == 0 && ! modified.exchange (true))
-        ++changeCounter;
+    if (! loading) dirty = true;
 }
-} // namespace pmx

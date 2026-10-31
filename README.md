@@ -1,55 +1,56 @@
-# PUNCHMAXXX — Transient Drum Processor
+# PUNCHMAXXX — Drum Dynamics Engine
+**TRIPLE 7 AUDIO** · JUCE 8 · VST3 / AU / Standalone
 
-by barnacle boi · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
+## Signal flow
+`IN → [oversample up] → COMPRESSOR → TRANSIENT → MIX (parallel blend) → [oversample down] → MAXIMIZER → OUTPUT`
 
-## What the controls do
+- **Compressor** — feed-forward, stereo-linked, 6 dB soft knee, gentle auto make-up (~40% of the gain reduction).
+- **Transient** — level-independent differential-envelope shaper. ATTACK ±100% = more/less snap, SUSTAIN ±100% = more/less body/tail. Gated so it never pumps up the noise floor.
+- **Mix** — parallel (NY-style) blend of the processed vs. dry signal. Dry is sample-aligned, so no phasing.
+- **Maximizer** — DRIVE (0–100% = 0 to +18 dB) into a 1.5 ms lookahead, true-peak-aware brickwall limiter. CEILING is never exceeded.
+- **Oversample** — OFF / 2X / 4X, linear-phase FIR.
 
-| Control | What it does |
-|---|---|
-| **TRANSIENT** (-100…+100) | Boosts or softens the attack of every hit (up to ±18 dB on the transient). |
-| **PUNCH** (0…100) | Extra attack boost on the low band only (below FOCUS) — the thump of kicks/snares. |
-| **BODY** (0…100) | The tail. 50 = untouched, lower = tighter/shorter, higher = fatter/longer. |
-| **MODE** | Detector character. TIGHT = fastest, short tails · PUNCH = medium, extra low-end snap · FAT = slower, long tails · CLEAN = smoothest gain movement. |
-| **SHAPE** | How the attack gain responds: Soft / Smooth / Hard (snappy, gate-like) / Exp (only big hits). |
-| **FOCUS** (50–800 Hz) | Where the PUNCH band ends. |
-| **DRIVE** | Soft-clip drive for density/slam (2x oversampled). |
-| **SATURATION** | Warm, even-harmonic color (2x oversampled). |
-| **TONE LOW / HIGH** | ±12 dB shelves at 120 Hz / 7 kHz. |
-| **WIDTH** | 0 = mono, 50 = original, 100 = 2x wider. |
-| **MIX** | Parallel blend; the dry path is latency-aligned, so no phasing. |
-| **OUTPUT** | -∞ … +6 dB. |
+### Clean by design
+- Every stage is gain-only (no EQ / filters in the path) → zero phase shift.
+- Latency is constant in every oversample mode and reported to the host → no phasing against other tracks, no re-sync when you switch modes.
+- All knobs and power buttons are smoothed (30 ms) → no zipper noise or clicks.
 
-Knobs: drag up/down, **shift-drag** for fine, **double-click** to reset, scroll wheel works.
+## Controls
+- Drag knobs up/down · **Shift-drag** = fine · **Double-click** = reset to default
+- Power icons bypass each section (smooth crossfade)
+- Preset bar: **< >** step through presets · click the **name** for the full list
+- 💾 **Save** (overwrites current user preset, or asks for a name on factory presets)
+- ⧉ **Save As** (new user preset)
+- ⚙ **Settings**: New (INIT), Save As, Open preset file, Export preset file, Delete, Show preset folder
+- A `*` after the preset name = edited since load
+- The editor is resizable (keeps aspect ratio)
 
 ## Presets
-- **INIT** + **20 factory presets** (all level-matched to about the same peak level).
-- **SAVE**: name it. Use an existing user preset name to overwrite it (asks first). Saving over a factory preset creates your own copy.
-- **< / >** step through everything, click the name for the full list.
-- **☰ menu**: save as new, overwrite, delete, load a `.pmxx` file, open the presets folder, window size.
-- 1st folder button = load a preset file from anywhere · 2nd folder button = open your presets folder.
-- User presets live in:
-  - macOS: `~/Library/Application Support/barnacle boi/PUNCHMAXXX/Presets`
-  - Windows: `%APPDATA%\barnacle boi\PUNCHMAXXX\Presets`
+INIT + 21 factory presets (Kick Thump, Snare Crack, NY Parallel Smash, Dubstep Slam, Riddim Knock, Into The Void, …).
 
-## Project recall
-Everything (all knobs, mode, shape, which preset is loaded, whether you tweaked it, window size) is saved inside the DAW project and comes back exactly when the project reopens.
+User presets are `.pmx` files in:
+- **Windows:** `%APPDATA%\TRIPLE 7 AUDIO\PUNCHMAXXX\Presets`
+- **macOS:** `~/Library/Application Support/TRIPLE 7 AUDIO/PUNCHMAXXX/Presets`
+
+Every knob, power state, oversample setting **and the preset name** are saved with your DAW project.
 
 ## Build
-
-Push to GitHub → **Actions** builds macOS (VST3 + AU + app, universal) and Windows (VST3 + exe) and runs the test suite. Grab the zips from the run's artifacts.
-
-Local:
-```
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+```bash
+# JUCE is picked up from ./JUCE or ../JUCE, otherwise downloaded automatically (8.0.9)
+cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
-JUCE 8.0.4 is downloaded automatically (or drop a JUCE checkout in `./JUCE`).
+Output: `build/PUNCHMAXXX_artefacts/Release/VST3/PUNCHMAXXX.vst3` (+ AU on macOS).
 
-Install: copy `PUNCHMAXXX.vst3` → `~/Library/Audio/Plug-Ins/VST3` (mac) or `C:\Program Files\Common Files\VST3` (win); `PUNCHMAXXX.component` → `~/Library/Audio/Plug-Ins/Components`.
-The mac CI build is ad-hoc signed, not notarized — if macOS blocks it: `xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/PUNCHMAXXX.vst3` (same for the .component).
+Windows: install Visual Studio 2022 (Desktop C++) + CMake. macOS: Xcode command line tools + CMake (`-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"` for a universal build).
+
+**GitHub Actions:** push this folder to a repo and `.github/workflows/build.yml` builds the Windows VST3 and the macOS VST3/AU automatically (download them from the run's Artifacts).
+
+Install: copy `PUNCHMAXXX.vst3` to `C:\Program Files\Common Files\VST3` (Win) or `~/Library/Audio/Plug-Ins/VST3` (Mac); `.component` → `~/Library/Audio/Plug-Ins/Components`.
 
 ## Tests
-`PunchmaxxxTests` checks: project save/reopen restores every parameter + preset name + modified flag, preset save/overwrite/delete/navigation, neutral settings are transparent (-56 dB null), each knob does what it says, MIX 0 is perfectly dry, all 20 presets are clean and level-matched, mono works, and it renders the UI to PNG.
-
-## Art
-`assets/background.png` is generated from `assets/ui_concept.png` by `python3 tools/prep_background.py assets/ui_concept.png assets/background.png` (it erases the baked-in knob pointers/arcs, the FOCUS readout and the preset name so the plugin can draw them live).
+```bash
+cmake -B build -DPMX_BUILD_TESTS=ON && cmake --build build --target PunchmaxxxTests
+./build/PunchmaxxxTests_artefacts/Release/PunchmaxxxTests ui.png
+```
+Checks: bypass null test in all oversample modes, ceiling on every preset, transient punch, project recall, user preset save/load/delete, and renders the UI.

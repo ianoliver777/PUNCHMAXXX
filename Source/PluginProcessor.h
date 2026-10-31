@@ -1,25 +1,18 @@
 #pragma once
-#include <juce_audio_processors/juce_audio_processors.h>
-#include <juce_dsp/juce_dsp.h>
-#include "Parameters.h"
+#include <JuceHeader.h>
+#include "DSP.h"
+#include "Params.h"
 #include "PresetManager.h"
-#include "DSP/PunchEngine.h"
 
-/** One column of the scrolling display: peak in, peak out, applied gain (dB). */
-struct DisplayFrame
-{
-    float inPeak = 0.0f, outPeak = 0.0f, gainDb = 0.0f;
-};
-
-class PunchmaxxxProcessor : public juce::AudioProcessor
+class PunchmaxxxAudioProcessor : public juce::AudioProcessor
 {
 public:
-    PunchmaxxxProcessor();
-    ~PunchmaxxxProcessor() override = default;
+    PunchmaxxxAudioProcessor();
+    ~PunchmaxxxAudioProcessor() override = default;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override {}
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
+    bool isBusesLayoutSupported (const BusesLayout&) const override;
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     using AudioProcessor::processBlock;
 
@@ -27,47 +20,57 @@ public:
     bool hasEditor() const override { return true; }
 
     const juce::String getName() const override { return JucePlugin_Name; }
-    bool acceptsMidi() const override { return false; }
+    bool acceptsMidi() const override  { return false; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override { return 0.0; }
 
-    // The host only sees one "program"; real preset handling lives in PresetManager.
+    // the preset browser handles programs; expose a single program to hosts
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram (int) override {}
     const juce::String getProgramName (int) override { return presets.getCurrentName(); }
     void changeProgramName (int, const juce::String&) override {}
 
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+    void getStateInformation (juce::MemoryBlock&) override;
+    void setStateInformation (const void*, int) override;
 
     juce::AudioProcessorValueTreeState apvts;
-    pmx::PresetManager presets;
+    PresetManager presets { apvts };
 
-    // ---- UI feeds (lock-free) ----
-    std::atomic<float> meterL { 0.0f }, meterR { 0.0f };
-    juce::AbstractFifo displayFifo { 2048 };
-    std::array<DisplayFrame, 2048> displayFrames;
-    int getDisplayDecimation() const { return displayDecim; }
-
-    /** Editor size is part of the saved state so it reopens the way you left it. */
-    std::atomic<int> savedEditorWidth { 0 };
+    // ---- metering (audio -> UI) ----
+    struct GraphPoint { float inDb, outDb, grDb; };
+    std::atomic<float> inLevel { 0.0f }, outLevel { 0.0f }, grLevelDb { 0.0f };
+    juce::AbstractFifo graphFifo { 2048 };
+    std::array<GraphPoint, 2048> graphData {};
 
 private:
-    pmx::PunchEngine::Settings readSettings() const;
-    void pushDisplay (const float* inMono, const juce::AudioBuffer<float>& out, int n);
+    struct Chain
+    {
+        pmx::Compressor comp;
+        pmx::TransientShaper trans;
+        juce::SmoothedValue<float> compAmt, transAmt, mixAmt, tAtk, tSus;
+        float lastGr = 0.0f;
+        int factor = 1;
+        void prepare (double fs);
+        void reset();
+    };
 
-    pmx::PunchEngine engine;
-    juce::dsp::DryWetMixer<float> dryWet { 4096 };
-    juce::SmoothedValue<float> outGain;
-    juce::AudioBuffer<float> inputCopy;
+    void pushGraphPoint (float in, float out, float gr);
 
-    int displayDecim = 128, decimCount = 0;
-    DisplayFrame pending;
+    std::array<std::unique_ptr<juce::dsp::Oversampling<float>>, 3> oversamplers; // [0] unused (off)
+    std::array<Chain, 3> chains;
+    std::array<int, 3> osLatency { 0, 0, 0 };
+    std::array<pmx::AlignDelay, 3> osFracDelay;   // integer delay *inside* the oversampled domain = exact fractional base-rate compensation (stays linear-phase)
+    pmx::AlignDelay alignDelay;
+    pmx::Limiter limiter;                       // runs at base rate, true-peak aware
+    juce::SmoothedValue<float> outGain, maxAmt, driveGain, ceilLin;
+    int currentOs = -1, maxOsLatency = 0, lookaheadBase = 64;
+    int graphInterval = 441, graphCounter = 0;
+    float graphIn = 0, graphOut = 0, graphGr = 0;
 
-    std::atomic<float>* pTransient {}, * pPunch {}, * pBody {}, * pMode {}, * pShape {}, * pFocus {}, * pDrive {},
-                      * pSat {}, * pLow {}, * pHigh {}, * pWidth {}, * pMix {}, * pOutput {};
+    std::atomic<float>* pCompOn, *pThresh, *pRatio, *pCAtk, *pCRel, *pTransOn, *pTAtk, *pTSus,
+                      *pMaxOn, *pCeil, *pDrive, *pMix, *pOs, *pOut;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PunchmaxxxProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PunchmaxxxAudioProcessor)
 };

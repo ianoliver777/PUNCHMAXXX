@@ -1,6 +1,3 @@
 build/
-JUCE/
-test-out/
-dist/
+JUCE
 .DS_Store
-*.zip
