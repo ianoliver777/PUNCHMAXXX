@@ -1,0 +1,68 @@
+name: Build PUNCHMAXXX
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-14
+          - name: Windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (macOS, universal arm64 + x86_64)
+        if: runner.os == 'macOS'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -S . -B build
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Run tests
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then ./build/Release/PunchmaxxxTests.exe test-out; else ./build/PunchmaxxxTests test-out; fi
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          A=build/PUNCHMAXXX_artefacts/Release
+          mkdir -p dist
+          cp -R "$A/VST3/PUNCHMAXXX.vst3" dist/
+          cp -R "$A/AU/PUNCHMAXXX.component" dist/
+          cp -R "$A/Standalone/PUNCHMAXXX.app" dist/
+          for b in dist/*; do codesign --force --deep --sign - "$b"; done
+          cd dist && zip -r -y ../PUNCHMAXXX-macOS.zip .
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $A = "build/PUNCHMAXXX_artefacts/Release"
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item -Recurse "$A/VST3/PUNCHMAXXX.vst3" dist/
+          Copy-Item "$A/Standalone/PUNCHMAXXX.exe" dist/
+          Compress-Archive -Path dist/* -DestinationPath PUNCHMAXXX-Windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PUNCHMAXXX-${{ matrix.name }}
+          path: PUNCHMAXXX-*.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ui-snapshots-${{ matrix.name }}
+          path: test-out/*.png
