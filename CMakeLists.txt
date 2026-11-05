@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(PUNCHMAXXX VERSION 1.0.0 LANGUAGES C CXX)
+project(PUNCHMAXXX VERSION 1.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,7 +22,8 @@ endif()
 
 # --- Plugin ----------------------------------------------------------------
 juce_add_plugin(PUNCHMAXXX
-    COMPANY_NAME "TRIPLE 7 AUDIO"
+    COMPANY_NAME "TRIPLE SEVEN MAFIA"
+    COMPANY_WEBSITE "https://triplesevenaudio.com"
     BUNDLE_ID com.triple7audio.punchmaxxx
     PLUGIN_MANUFACTURER_CODE T7au
     PLUGIN_CODE Pmxx

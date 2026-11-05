@@ -1,0 +1,48 @@
+PUNCHMAXXX — Transient Drum Processor
+by TRIPLE SEVEN MAFIA · triplesevenaudio.com
+macOS 10.13+ · Apple Silicon + Intel (universal)
+
+WHAT'S IN THE ZIP
+  PUNCHMAXXX.vst3       VST3 plugin (Ableton, FL Studio, Bitwig, Reaper, Cubase...)
+  PUNCHMAXXX.component  Audio Unit (Logic Pro, GarageBand, also Ableton)
+  PUNCHMAXXX.app        Standalone app (no DAW needed)
+  Install PUNCHMAXXX.command   one-click installer
+
+------------------------------------------------------------
+EASY WAY (one click)
+------------------------------------------------------------
+1. Unzip the download.
+2. RIGHT-CLICK "Install PUNCHMAXXX.command" -> Open -> Open.
+   (right-click is needed the first time because it's not from the App Store)
+3. A Terminal window says "DONE". Close it.
+4. Restart your DAW. PUNCHMAXXX shows up under TRIPLE SEVEN MAFIA.
+
+------------------------------------------------------------
+MANUAL WAY
+------------------------------------------------------------
+1. In Finder press Cmd+Shift+G and paste:  ~/Library/Audio/Plug-Ins/
+2. Drag PUNCHMAXXX.vst3      into the VST3 folder
+   Drag PUNCHMAXXX.component into the Components folder
+   (make the folder if it doesn't exist)
+3. Optional: drag PUNCHMAXXX.app into Applications.
+4. Open Terminal and paste this so macOS doesn't block it:
+
+   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/PUNCHMAXXX.vst3 ~/Library/Audio/Plug-Ins/Components/PUNCHMAXXX.component
+
+5. Restart your DAW and rescan plugins.
+
+------------------------------------------------------------
+IF SOMETHING'S OFF
+------------------------------------------------------------
+- "PUNCHMAXXX is damaged / can't be opened": run the xattr line in step 4.
+- Logic doesn't see it: quit Logic, open Terminal, run
+      killall -9 AudioComponentRegistrar
+  then open Logic again (Logic > Settings > Plug-in Manager > Reset & Rescan).
+- Ableton doesn't see it: Settings > Plug-ins > turn on "Use VST3 Plug-in
+  System Folders" and "Use Audio Units", then Rescan.
+
+Already had an older PUNCHMAXXX? Just install over it — your saved presets
+are copied over automatically and your old projects still load it.
+
+Your presets live in:
+  ~/Library/Application Support/TRIPLE SEVEN MAFIA/PUNCHMAXXX/Presets

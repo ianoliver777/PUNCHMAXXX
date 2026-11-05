@@ -81,6 +81,7 @@ PunchmaxxxEditor::PunchmaxxxEditor (PunchmaxxxProcessor& p)
     place (saveBtn, L::btnSave, [this] { openSaveDialog(); });
     place (initBtn, L::btnInit, [this] { proc.presets.loadInit(); });
     place (menuBtn, L::btnMenu, [this] { showMainMenu(); });
+    place (logoBtn, L::logo, [] { URL ("https://triplesevenaudio.com").launchInDefaultBrowser(); });
 
     canvas.addAndMakeVisible (presetBox);
     presetBox.setBounds (L::presetBox);
@@ -235,7 +236,7 @@ void PunchmaxxxEditor::showMainMenu()
                              case 9:
                                  AlertWindow::showAsync (MessageBoxOptions().withTitle ("PUNCHMAXXX")
                                                              .withMessage (String ("Transient Drum Processor  v") + JucePlugin_VersionString
-                                                                           + "\nby TRIPLE 7 AUDIO\n\nShift-drag for fine control, double-click a knob to reset.")
+                                                                           + "\nby TRIPLE SEVEN MAFIA\n\nShift-drag for fine control, double-click a knob to reset.")
                                                              .withButton ("NICE").withAssociatedComponent (&ed), nullptr);
                                  break;
                              default:

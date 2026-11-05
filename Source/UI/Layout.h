@@ -48,6 +48,7 @@ inline const juce::Rectangle<int> btnNext    { 859, 139, 41, 41 };
 inline const juce::Rectangle<int> btnSave    { 912, 139, 93, 41 };
 inline const juce::Rectangle<int> btnInit    { 1012, 139, 91, 41 };
 inline const juce::Rectangle<int> btnMenu    { 1110, 139, 56, 41 };
+inline const juce::Rectangle<int> logo       { 855, 10, 280, 100 };   // TRIPLE SEVEN badge (links to the site)
 
 inline const juce::Rectangle<int> display { 205, 216, 612, 142 };
 

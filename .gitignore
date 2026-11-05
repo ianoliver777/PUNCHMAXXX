@@ -4,3 +4,5 @@ test-out/
 dist/
 .DS_Store
 *.zip
+build-*.log
+build.log

@@ -1,0 +1,40 @@
+PUNCHMAXXX — Transient Drum Processor
+by TRIPLE SEVEN MAFIA · triplesevenaudio.com
+Windows 10 / 11 · 64-bit
+
+WHAT'S IN THE ZIP
+  PUNCHMAXXX.vst3              VST3 plugin (FL Studio, Ableton, Bitwig, Reaper, Cubase...)
+  PUNCHMAXXX.exe               Standalone app (no DAW needed)
+  Install PUNCHMAXXX.bat       one-click installer
+
+------------------------------------------------------------
+EASY WAY (one click)
+------------------------------------------------------------
+1. Right-click the zip -> Extract All... (don't run it from inside the zip).
+2. Double-click "Install PUNCHMAXXX.bat" and click YES when Windows asks
+   for admin permission (needed to write to Program Files).
+   If a blue "Windows protected your PC" box shows: More info -> Run anyway.
+3. It says DONE. Press any key to close.
+4. Restart your DAW and rescan. PUNCHMAXXX shows up under TRIPLE SEVEN MAFIA.
+
+------------------------------------------------------------
+MANUAL WAY
+------------------------------------------------------------
+1. Copy the PUNCHMAXXX.vst3 folder into:
+       C:\Program Files\Common Files\VST3
+2. Optional: put PUNCHMAXXX.exe anywhere you like (Desktop is fine).
+3. Restart your DAW and rescan plugins.
+
+------------------------------------------------------------
+IF SOMETHING'S OFF
+------------------------------------------------------------
+- FL Studio: Options > Manage plugins > Find more plugins (or Find installed).
+- Ableton: Settings > Plug-ins > turn on "Use VST3 Plug-in System Folder" > Rescan.
+- Still missing? Make sure you copied the whole PUNCHMAXXX.vst3 folder, not
+  just a file from inside it.
+
+Already had an older PUNCHMAXXX? Just install over it — your saved presets
+are copied over automatically and your old projects still load it.
+
+Your presets live in:
+  %APPDATA%\TRIPLE SEVEN MAFIA\PUNCHMAXXX\Presets

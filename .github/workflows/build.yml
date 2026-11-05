@@ -45,6 +45,8 @@ jobs:
           cp -R "$A/AU/PUNCHMAXXX.component" dist/
           cp -R "$A/Standalone/PUNCHMAXXX.app" dist/
           for b in dist/*; do codesign --force --deep --sign - "$b"; done
+          cp install/macOS/* dist/
+          chmod +x "dist/Install PUNCHMAXXX.command"
           cd dist && zip -r -y ../PUNCHMAXXX-macOS.zip .
 
       - name: Package (Windows)
@@ -55,6 +57,7 @@ jobs:
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item -Recurse "$A/VST3/PUNCHMAXXX.vst3" dist/
           Copy-Item "$A/Standalone/PUNCHMAXXX.exe" dist/
+          Copy-Item install/Windows/* dist/
           Compress-Archive -Path dist/* -DestinationPath PUNCHMAXXX-Windows.zip
 
       - uses: actions/upload-artifact@v4

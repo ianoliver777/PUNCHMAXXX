@@ -1,6 +1,6 @@
 # PUNCHMAXXX — Transient Drum Processor
 
-by TRIPLE 7 AUDIO · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
+by **TRIPLE SEVEN MAFIA** · [triplesevenaudio.com](https://triplesevenaudio.com) · v1.1.0 · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
 
 ## What the controls do
 
@@ -28,8 +28,8 @@ Knobs: drag up/down, **shift-drag** for fine, **double-click** to reset, scroll 
 - **☰ menu**: save as new, overwrite, delete, load a `.pmxx` file, open the presets folder, window size.
 - 1st folder button = load a preset file from anywhere · 2nd folder button = open your presets folder.
 - User presets live in:
-  - macOS: `~/Library/Application Support/TRIPLE 7 AUDIO/PUNCHMAXXX/Presets`
-  - Windows: `%APPDATA%\TRIPLE 7 AUDIO\PUNCHMAXXX\Presets`
+  - macOS: `~/Library/Application Support/TRIPLE SEVEN MAFIA/PUNCHMAXXX/Presets`
+  - Windows: `%APPDATA%\TRIPLE SEVEN MAFIA\PUNCHMAXXX\Presets`
 
 ## Project recall
 Everything (all knobs, mode, shape, which preset is loaded, whether you tweaked it, window size) is saved inside the DAW project and comes back exactly when the project reopens.
@@ -45,8 +45,16 @@ cmake --build build --config Release
 ```
 JUCE 8.0.4 is downloaded automatically (or drop a JUCE checkout in `./JUCE`).
 
-Install: copy `PUNCHMAXXX.vst3` → `~/Library/Audio/Plug-Ins/VST3` (mac) or `C:\Program Files\Common Files\VST3` (win); `PUNCHMAXXX.component` → `~/Library/Audio/Plug-Ins/Components`.
-The mac CI build is ad-hoc signed, not notarized — if macOS blocks it: `xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/PUNCHMAXXX.vst3` (same for the .component).
+## Install
+Each zip ships with `INSTALL.txt` and a one-click installer:
+- **macOS** — right-click `Install PUNCHMAXXX.command` → Open. Copies the VST3 + AU to `~/Library/Audio/Plug-Ins`, the app to `/Applications`, and clears the quarantine flag (the CI build is ad-hoc signed, not notarized).
+- **Windows** — extract the zip, double-click `Install PUNCHMAXXX.bat`, accept the admin prompt. Copies the VST3 to `C:\Program Files\Common Files\VST3`.
+
+Manual install and troubleshooting are in `install/macOS/INSTALL.txt` and `install/Windows/INSTALL.txt`.
+
+## Changelog
+- **1.1.0** — new TRIPLE SEVEN skin, author is now **TRIPLE SEVEN MAFIA**, logo links to triplesevenaudio.com, one-click installers in the release zips. Plugin IDs are unchanged, so old projects still load it; presets from the old `TRIPLE 7 AUDIO` folder are copied over automatically.
+- **1.0.0** — first release.
 
 ## Tests
 `PunchmaxxxTests` checks: project save/reopen restores every parameter + preset name + modified flag, preset save/overwrite/delete/navigation, neutral settings are transparent (-56 dB null), each knob does what it says, MIX 0 is perfectly dry, all 20 presets are clean and level-matched, mono works, and it renders the UI to PNG.

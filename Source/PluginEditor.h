@@ -49,7 +49,8 @@ private:
 
     pmx::HotspotButton importBtn { "Load a preset file" }, folderBtn { "Open your presets folder" },
                        prevBtn { "Previous preset" }, nextBtn { "Next preset" },
-                       saveBtn { "Save preset" }, initBtn { "Reset to INIT" }, menuBtn { "Menu" };
+                       saveBtn { "Save preset" }, initBtn { "Reset to INIT" }, menuBtn { "Menu" },
+                       logoBtn { "triplesevenaudio.com" };
     pmx::PresetNameBox presetBox;
     pmx::ScopeDisplay scope;
     pmx::LedMeter meter;
