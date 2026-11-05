@@ -1,5 +1,5 @@
 @echo off
-REM PUNCHMAXXX installer - TRIPLE SEVEN MAFIA
+REM PUNCHMAXXX installer - TRIPLE SEVEN AUDIO
 REM Re-launch as administrator (Program Files needs it)
 net session >nul 2>&1
 if %errorlevel% neq 0 (
@@ -9,7 +9,7 @@ if %errorlevel% neq 0 (
 
 cd /d "%~dp0"
 echo.
-echo   PUNCHMAXXX by TRIPLE SEVEN MAFIA - installing...
+echo   PUNCHMAXXX by TRIPLE SEVEN AUDIO - installing...
 echo.
 
 set "VST3DIR=%CommonProgramFiles%\VST3"
@@ -29,9 +29,9 @@ if %errorlevel% neq 0 (
 echo   OK PUNCHMAXXX.vst3  -^>  %VST3DIR%
 
 if exist "PUNCHMAXXX.exe" (
-    if not exist "%ProgramFiles%\TRIPLE SEVEN MAFIA" mkdir "%ProgramFiles%\TRIPLE SEVEN MAFIA"
-    copy /y "PUNCHMAXXX.exe" "%ProgramFiles%\TRIPLE SEVEN MAFIA\PUNCHMAXXX.exe" >nul
-    powershell -NoProfile -Command "$s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('CommonStartMenu')+'\Programs\PUNCHMAXXX.lnk'); $s.TargetPath='%ProgramFiles%\TRIPLE SEVEN MAFIA\PUNCHMAXXX.exe'; $s.Save()" >nul 2>&1
+    if not exist "%ProgramFiles%\TRIPLE SEVEN AUDIO" mkdir "%ProgramFiles%\TRIPLE SEVEN AUDIO"
+    copy /y "PUNCHMAXXX.exe" "%ProgramFiles%\TRIPLE SEVEN AUDIO\PUNCHMAXXX.exe" >nul
+    powershell -NoProfile -Command "$s=(New-Object -ComObject WScript.Shell).CreateShortcut([Environment]::GetFolderPath('CommonStartMenu')+'\Programs\PUNCHMAXXX.lnk'); $s.TargetPath='%ProgramFiles%\TRIPLE SEVEN AUDIO\PUNCHMAXXX.exe'; $s.Save()" >nul 2>&1
     echo   OK PUNCHMAXXX.exe   -^>  Start menu
 )
 

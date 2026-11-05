@@ -22,7 +22,7 @@ endif()
 
 # --- Plugin ----------------------------------------------------------------
 juce_add_plugin(PUNCHMAXXX
-    COMPANY_NAME "TRIPLE SEVEN MAFIA"
+    COMPANY_NAME "TRIPLE SEVEN AUDIO"
     COMPANY_WEBSITE "https://triplesevenaudio.com"
     BUNDLE_ID com.triple7audio.punchmaxxx
     PLUGIN_MANUFACTURER_CODE T7au

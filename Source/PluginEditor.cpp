@@ -236,7 +236,7 @@ void PunchmaxxxEditor::showMainMenu()
                              case 9:
                                  AlertWindow::showAsync (MessageBoxOptions().withTitle ("PUNCHMAXXX")
                                                              .withMessage (String ("Transient Drum Processor  v") + JucePlugin_VersionString
-                                                                           + "\nby TRIPLE SEVEN MAFIA\n\nShift-drag for fine control, double-click a knob to reset.")
+                                                                           + "\nby TRIPLE SEVEN AUDIO\n\nShift-drag for fine control, double-click a knob to reset.")
                                                              .withButton ("NICE").withAssociatedComponent (&ed), nullptr);
                                  break;
                              default:

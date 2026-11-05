@@ -23,12 +23,12 @@ juce::File PresetManager::defaultUserFolder()
    #if JUCE_MAC
     base = base.getChildFile ("Application Support");
    #endif
-    auto folder = base.getChildFile ("TRIPLE SEVEN MAFIA").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
+    auto folder = base.getChildFile ("TRIPLE SEVEN AUDIO").getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
 
     // one-time copy of presets saved by earlier builds (vendor folder renamed twice)
     if (! folder.isDirectory())
     {
-        for (auto* oldVendor : { "TRIPLE 7 AUDIO", "barnacle boi" })
+        for (auto* oldVendor : { "TRIPLE SEVEN MAFIA", "TRIPLE 7 AUDIO", "barnacle boi" })
         {
             auto legacy = base.getChildFile (oldVendor).getChildFile ("PUNCHMAXXX").getChildFile ("Presets");
             if (legacy.isDirectory() && folder.createDirectory())

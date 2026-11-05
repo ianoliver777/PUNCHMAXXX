@@ -1,5 +1,5 @@
 PUNCHMAXXX — Transient Drum Processor
-by TRIPLE SEVEN MAFIA · triplesevenaudio.com
+by TRIPLE SEVEN AUDIO · triplesevenaudio.com
 Windows 10 / 11 · 64-bit
 
 WHAT'S IN THE ZIP
@@ -15,7 +15,7 @@ EASY WAY (one click)
    for admin permission (needed to write to Program Files).
    If a blue "Windows protected your PC" box shows: More info -> Run anyway.
 3. It says DONE. Press any key to close.
-4. Restart your DAW and rescan. PUNCHMAXXX shows up under TRIPLE SEVEN MAFIA.
+4. Restart your DAW and rescan. PUNCHMAXXX shows up under TRIPLE SEVEN AUDIO.
 
 ------------------------------------------------------------
 MANUAL WAY
@@ -37,4 +37,4 @@ Already had an older PUNCHMAXXX? Just install over it — your saved presets
 are copied over automatically and your old projects still load it.
 
 Your presets live in:
-  %APPDATA%\TRIPLE SEVEN MAFIA\PUNCHMAXXX\Presets
+  %APPDATA%\TRIPLE SEVEN AUDIO\PUNCHMAXXX\Presets

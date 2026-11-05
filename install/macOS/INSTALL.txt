@@ -1,5 +1,5 @@
 PUNCHMAXXX — Transient Drum Processor
-by TRIPLE SEVEN MAFIA · triplesevenaudio.com
+by TRIPLE SEVEN AUDIO · triplesevenaudio.com
 macOS 10.13+ · Apple Silicon + Intel (universal)
 
 WHAT'S IN THE ZIP
@@ -15,7 +15,7 @@ EASY WAY (one click)
 2. RIGHT-CLICK "Install PUNCHMAXXX.command" -> Open -> Open.
    (right-click is needed the first time because it's not from the App Store)
 3. A Terminal window says "DONE". Close it.
-4. Restart your DAW. PUNCHMAXXX shows up under TRIPLE SEVEN MAFIA.
+4. Restart your DAW. PUNCHMAXXX shows up under TRIPLE SEVEN AUDIO.
 
 ------------------------------------------------------------
 MANUAL WAY
@@ -45,4 +45,4 @@ Already had an older PUNCHMAXXX? Just install over it — your saved presets
 are copied over automatically and your old projects still load it.
 
 Your presets live in:
-  ~/Library/Application Support/TRIPLE SEVEN MAFIA/PUNCHMAXXX/Presets
+  ~/Library/Application Support/TRIPLE SEVEN AUDIO/PUNCHMAXXX/Presets

@@ -1,8 +1,8 @@
 #!/bin/bash
-# PUNCHMAXXX installer — TRIPLE SEVEN MAFIA
+# PUNCHMAXXX installer — TRIPLE SEVEN AUDIO
 cd "$(dirname "$0")" || exit 1
 echo ""
-echo "  PUNCHMAXXX by TRIPLE SEVEN MAFIA — installing..."
+echo "  PUNCHMAXXX by TRIPLE SEVEN AUDIO — installing..."
 echo ""
 
 VST3="$HOME/Library/Audio/Plug-Ins/VST3"

@@ -1,6 +1,6 @@
 # PUNCHMAXXX — Transient Drum Processor
 
-by **TRIPLE SEVEN MAFIA** · [triplesevenaudio.com](https://triplesevenaudio.com) · v1.1.0 · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
+by **TRIPLE SEVEN AUDIO** · [triplesevenaudio.com](https://triplesevenaudio.com) · v1.1.0 · JUCE 8 · VST3 / AU / Standalone (macOS universal, Windows)
 
 ## What the controls do
 
@@ -28,8 +28,8 @@ Knobs: drag up/down, **shift-drag** for fine, **double-click** to reset, scroll 
 - **☰ menu**: save as new, overwrite, delete, load a `.pmxx` file, open the presets folder, window size.
 - 1st folder button = load a preset file from anywhere · 2nd folder button = open your presets folder.
 - User presets live in:
-  - macOS: `~/Library/Application Support/TRIPLE SEVEN MAFIA/PUNCHMAXXX/Presets`
-  - Windows: `%APPDATA%\TRIPLE SEVEN MAFIA\PUNCHMAXXX\Presets`
+  - macOS: `~/Library/Application Support/TRIPLE SEVEN AUDIO/PUNCHMAXXX/Presets`
+  - Windows: `%APPDATA%\TRIPLE SEVEN AUDIO\PUNCHMAXXX\Presets`
 
 ## Project recall
 Everything (all knobs, mode, shape, which preset is loaded, whether you tweaked it, window size) is saved inside the DAW project and comes back exactly when the project reopens.
@@ -53,7 +53,7 @@ Each zip ships with `INSTALL.txt` and a one-click installer:
 Manual install and troubleshooting are in `install/macOS/INSTALL.txt` and `install/Windows/INSTALL.txt`.
 
 ## Changelog
-- **1.1.0** — new TRIPLE SEVEN skin, author is now **TRIPLE SEVEN MAFIA**, logo links to triplesevenaudio.com, one-click installers in the release zips. Plugin IDs are unchanged, so old projects still load it; presets from the old `TRIPLE 7 AUDIO` folder are copied over automatically.
+- **1.1.0** — new TRIPLE SEVEN skin, author is now **TRIPLE SEVEN AUDIO** (matches the logo), logo links to triplesevenaudio.com, one-click installers in the release zips. Plugin IDs are unchanged, so old projects still load it; presets from the old `TRIPLE 7 AUDIO` folder are copied over automatically.
 - **1.0.0** — first release.
 
 ## Tests
