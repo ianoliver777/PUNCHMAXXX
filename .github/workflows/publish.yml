@@ -1,0 +1,50 @@
+name: Publish release
+
+# Run manually with the ID of a green "Build PUNCHMAXXX" run.
+# Creates a GitHub Release with the macOS + Windows zips and also commits
+# them to the `downloads` branch.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Build run ID to publish"
+        required: true
+      tag:
+        description: "Release tag (e.g. v1.1.0)"
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build zips
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "${{ inputs.run_id }}" -R "${{ github.repository }}" -n PUNCHMAXXX-macOS -D out
+          gh run download "${{ inputs.run_id }}" -R "${{ github.repository }}" -n PUNCHMAXXX-Windows -D out
+          ls -la out
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete "${{ inputs.tag }}" -R "${{ github.repository }}" -y --cleanup-tag 2>/dev/null || true
+          gh release create "${{ inputs.tag }}" -R "${{ github.repository }}" \
+            --title "PUNCHMAXXX ${{ inputs.tag }}" \
+            --notes "PUNCHMAXXX by TRIPLE SEVEN AUDIO. Each zip has INSTALL.txt and a one-click installer." \
+            out/PUNCHMAXXX-macOS.zip out/PUNCHMAXXX-Windows.zip
+
+      - name: Commit zips to the downloads branch
+        run: |
+          mkdir dl && cd dl
+          git init -q -b downloads
+          cp ../out/*.zip .
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "PUNCHMAXXX ${{ inputs.tag }} downloads"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" downloads
